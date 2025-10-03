@@ -1,0 +1,47 @@
+import logging
+import os
+from datetime import datetime
+
+# Directorio donde se guardarán los archivos de log
+LOGS_DIR = 'logs'
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR)
+
+# Nombre del archivo de log, 
+log_file_name = datetime.now().strftime('system_log_%Y%m%d.log')
+LOG_FILE_PATH = os.path.join(LOGS_DIR, log_file_name)
+
+# Formato del mensaje de log
+LOG_FORMAT = (
+    '%(asctime)s | %(levelname)s | '
+    '%(name)s | PID:%(process)d | '
+    'Func:%(funcName)s | Line:%(lineno)d | '
+    '%(message)s'
+)
+
+# FUNCIÓN PRINCIPAL DE CONFIGURACIÓN 
+def setup_logging(service_name: str = 'MainService', level=logging.INFO):
+    
+    # 1. Crear el objeto Logger con el nombre del servicio
+    logger = logging.getLogger(service_name)
+    logger.setLevel(level)
+
+    # 2. Evitar la propagación a loggers root si ya está configurado
+    logger.propagate = False 
+    if logger.handlers:
+        return logger # Ya configurado, se retorna
+
+    # 3. Definir el Formatter
+    formatter = logging.Formatter(LOG_FORMAT)
+
+    # 4. Crear Handler para Console (salida estándar)
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    # 5. Crear Handler para File (guardar en archivo)
+    file_handler = logging.FileHandler(LOG_FILE_PATH, mode='a', encoding='utf-8')
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+    
+    return logger
