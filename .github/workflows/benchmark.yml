@@ -17,4 +17,5 @@ jobs:
 
       - name: Run benchmark test
         run: |
+          export PYTHONPATH=$PYTHONPATH:$(pwd)
           pytest -v --benchmark-only
